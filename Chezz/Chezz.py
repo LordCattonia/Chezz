@@ -4,7 +4,7 @@ import pygame.font
 
 COLOR = (255, 100, 98)
 SURFACE_COLOR = (167, 255, 100)
-colour = (25, 200, 10)
+colour = (90, 180, 120)
 colourb = (180, 200, 180)
 canvasColour = (120, 120, 120)
 
