@@ -1,4 +1,4 @@
-import random
+﻿import random
 import pygame
 import pygame.font
 
@@ -6,7 +6,13 @@ COLOR = (255, 100, 98)
 SURFACE_COLOR = (167, 255, 100)
 colour = (90, 180, 120)
 colourb = (180, 200, 180)
-canvasColour = (120, 120, 120)
+selectColour = (255, 120, 120)
+
+'''
+try: input = int(input("How many players(1/2): "))
+except: print("Please input a correct number, though im lazy so ur starting in 2 player mode :P")
+if input>2 or input<1:
+    print("Please input a correct number, though im lazy so ur starting in 2 player mode :P") '''
 
 pygame.init()
 
@@ -14,7 +20,17 @@ pygame.init()
 canvas = pygame.display.set_mode((800, 800))
 pygame.display.set_caption("Chessish kindof thing")
 
-font = pygame.font.Font(None, 50)
+font = pygame.font.Font(None, 100)
+
+board = [["br", "bn", "bb", "bq", "bk", "bb", "bn", "br"],
+         ["bp", "bp", "bp", "bp", "bp", "bp", "bp", "bp"],
+         [" ", " ", " ", " ", " ", " ", " ", " "],
+         [" ", " ", " ", " ", " ", " ", " ", " "],
+         [" ", " ", " ", " ", " ", " ", " ", " "],
+         [" ", " ", " ", " ", " ", " ", " ", " "],
+         ["wp", "wp", "wp", "wp", "wp", "wp", "wp", "wp"],
+         ["wr", "wn", "wb", "wq", "wk", "wb", "wn", "wr"]]
+
 def main():
     # Make the map of mines and put it through the processing function.
 
@@ -65,31 +81,57 @@ def main():
                 # get a list of all sprites that are under the mouse cursor
                 clicked_sprites = [s for s in spriteList if s.rect.collidepoint(pygame.mouse.get_pos())]
                 for i in clicked_sprites:
-                    x, y = 0, 0
-                    [x, y] = find_element(spriteList, i, refList)
-
-                    pygame.draw.rect(i.image,
-                                canvasColour,
+                    if i.selected:
+                        i.selected = False
+                        if i.cb:
+                            pygame.draw.rect(i.image,
+                                colourb,
                                 pygame.Rect(0, 0, i.width, i.height))
-
-                    # Get centre
-                    square_center_x = i.width // 2
-                    square_center_y = i.height // 2
-
-                    # Render the text
-                    text_surface = font.render(str(map[x][y]), True, (0, 0, 0))
-                    text_rect = text_surface.get_rect()
-                    text_rect.center = (square_center_x, square_center_y)
-
-                    # Draw the text on the square's surface
-                    i.image.blit(text_surface, text_rect.topleft)
+                        else:
+                            pygame.draw.rect(i.image,
+                                colour,
+                                pygame.Rect(0, 0, i.width, i.height))
+                        for j in spriteList.sprites():
+                            if j.selected:
+                                j.selected = False
+                                if j.cb:
+                                    pygame.draw.rect(j.image,
+                                        colourb,
+                                        pygame.Rect(0, 0, j.width, j.height))
+                                else:
+                                    pygame.draw.rect(j.image,
+                                        colour,
+                                        pygame.Rect(0, 0, j.width, j.height))
+                    else:
+                        for j in spriteList.sprites():
+                            if j.selected:
+                                j.selected = False
+                                if j.cb:
+                                    pygame.draw.rect(j.image,
+                                        colourb,
+                                        pygame.Rect(0, 0, j.width, j.height))
+                                else:
+                                    pygame.draw.rect(j.image,
+                                        colour,
+                                        pygame.Rect(0, 0, j.width, j.height))
+                        i.selected = True
+                        pygame.draw.rect(i.image,
+                                    selectColour,
+                                    pygame.Rect(0, 0, i.width, i.height), 2)
+                        
                    
         spriteList.draw(canvas)
+        for i in spriteList.sprites():
+            [x, y] = find_element(spriteList.sprites(), i, refList)
+            if board[y][x] != " ":
+                img = pygame.image.load(f"images\\{board[y][x]}.png")
+                img = pygame.transform.scale(img,(100,100))
+                canvas.blit(img, i)
         pygame.display.update()
 
 
 # Thanks ChatGPT (shhh)
-def find_adjacent_places(lst, row, col):
+def king_move(lst, row, col):
     adjacent_places = []
     rows = len(lst)
     cols = len(lst[0])
@@ -110,10 +152,39 @@ def find_adjacent_places(lst, row, col):
     for position in positions:
         r, c = position
         # Check if the neighboring position is within bounds
-        if 0 <= r < rows and 0 <= c < cols:
+        if 0 <= r < rows and 0 <= c < cols and lst[r][c][0]!= lst[row][col][0]:
             adjacent_places.append([r,c])
 
     return adjacent_places
+
+
+def pawn_move(lst, row, col, colour):
+    moves = []
+    if colour == "b":
+        if row+1>7:
+            return moves
+        if lst[row + 1][col] == " ":
+            moves.append([row+1][col])
+            # double move add en passant to fgn :/
+            if row == 1 and lst[row + 2][col] == " ":
+                moves.append([row-2][col])
+        if col+1<7 and lst[row + 1][col+1] != " ":
+            moves.append([row+1][col+1])
+        if col-1>-1 and lst[row + 1][col-1] != " ":
+            moves.append([row+1][col-1])
+    if colour == "w":
+        if row-1<-1:
+            return moves
+        if lst[row - 1][col] == " ":
+            moves.append([row-1][col])
+             # double move add en passant to fgn :/
+            if row == 7 and lst[row - 2][col] == " ":
+                moves.append([row-2][col])
+        if col+1<7 and lst[row + 1][col+1] != " ":
+            moves.append([row+1][col+1])
+        if col-1>-1 and (lst[row + 1][col-1] != " " or lst[row + 1][col-1] != "e"):
+            moves.append([row+1][col-1])
+    return moves
 
 class Sprite(pygame.sprite.Sprite):
     def __init__(self, locx, locy, colour, height, width):
@@ -131,7 +202,9 @@ class Sprite(pygame.sprite.Sprite):
                          pygame.Rect(0, 0, width, height))
 
         self.cb = False
-        if colour != (25, 200, 10): self.cb = True
+        if colour != (90, 180, 120): self.cb = True
+
+        self.selected = False
 
         self.rect = self.image.get_rect()
         self.rect.x = locx
