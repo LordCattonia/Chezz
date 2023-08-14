@@ -32,10 +32,18 @@ board = [["br", "bn", "bb", "bq", "bk", "bb", "bn", "br"],
          ["wr", "wn", "wb", "wq", "wk", "wb", "wn", "wr"]]
 
 def main():
-    # Make the map of mines and put it through the processing function.
+    
+    pieceMoves = {
+        "k": king_move,
+        "p": pawn_move,
+        "r": rook_move,
+        "b": bishop_move,
+        "n": knight_move,
+        "q": queen_move
+        }
 
 
-    spriteList = pygame.sprite.Group()
+    tileList = pygame.sprite.Group()
     
     def find_element(Intlist, searchObj,refList):
         y=0
@@ -57,7 +65,7 @@ def main():
                 intcolour = colour
             else: intcolour = colourb
             colourchange = not colourchange
-            spriteList.add(Sprite(i*100, j*100, intcolour, 100, 100))
+            tileList.add(Tile(i*100, j*100, intcolour, 100, 100))
 
 
     refList = []
@@ -79,7 +87,7 @@ def main():
             # Left Click
             if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 # get a list of all sprites that are under the mouse cursor
-                clicked_sprites = [s for s in spriteList if s.rect.collidepoint(pygame.mouse.get_pos())]
+                clicked_sprites = [s for s in tileList if s.rect.collidepoint(pygame.mouse.get_pos())]
                 for i in clicked_sprites:
                     if i.selected:
                         i.selected = False
@@ -91,7 +99,7 @@ def main():
                             pygame.draw.rect(i.image,
                                 colour,
                                 pygame.Rect(0, 0, i.width, i.height))
-                        for j in spriteList.sprites():
+                        for j in tileList.sprites():
                             if j.selected:
                                 j.selected = False
                                 if j.cb:
@@ -103,7 +111,7 @@ def main():
                                         colour,
                                         pygame.Rect(0, 0, j.width, j.height))
                     else:
-                        for j in spriteList.sprites():
+                        for j in tileList.sprites():
                             if j.selected:
                                 j.selected = False
                                 if j.cb:
@@ -120,9 +128,9 @@ def main():
                                     pygame.Rect(0, 0, i.width, i.height), 2)
                         
                    
-        spriteList.draw(canvas)
-        for i in spriteList.sprites():
-            [x, y] = find_element(spriteList.sprites(), i, refList)
+        tileList.draw(canvas)
+        for i in tileList.sprites():
+            [x, y] = find_element(tileList.sprites(), i, refList)
             if board[y][x] != " ":
                 img = pygame.image.load(f"images\\{board[y][x]}.png")
                 img = pygame.transform.scale(img,(100,100))
@@ -158,9 +166,9 @@ def king_move(lst, row, col):
     return adjacent_places
 
 
-def pawn_move(lst, row, col, colour):
+def pawn_move(lst, row, col):
     moves = []
-    if colour == "b":
+    if lst[row][col][0] == "b":
         if row+1>7:
             return moves
         if lst[row + 1][col] == " ":
@@ -172,7 +180,7 @@ def pawn_move(lst, row, col, colour):
             moves.append([row+1][col+1])
         if col-1>-1 and lst[row + 1][col-1] != " ":
             moves.append([row+1][col-1])
-    if colour == "w":
+    if lst[row][col][0] == "w":
         if row-1<-1:
             return moves
         if lst[row - 1][col] == " ":
@@ -186,7 +194,36 @@ def pawn_move(lst, row, col, colour):
             moves.append([row+1][col-1])
     return moves
 
-class Sprite(pygame.sprite.Sprite):
+def rook_move(lst, row, col):
+    moves = []
+    for i in range(col-1, -1, -1):
+        if lst[row][i] == " ": 
+
+
+
+class Piece(pygame.sprite.Sprite):
+    def __init__(self, locx, locy, colour, height, width, piece):
+        super().__init__()
+  
+        self.image = pygame.Surface([width, height])
+
+        img = pygame.image.load(f"images\\{colour}{piece}.png")
+        img = pygame.transform.scale(img,(100,100))
+        canvas.blit(img, self.image)
+
+        self.colour = colour
+        self.piece = piece
+
+        def moveset(self):
+
+
+
+        self.rect = self.image.get_rect()
+        self.rect.x = locx*100
+        self.rect.y = locy*100
+
+
+class Tile(pygame.sprite.Sprite):
     def __init__(self, locx, locy, colour, height, width):
         super().__init__()
   
