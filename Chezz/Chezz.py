@@ -78,6 +78,12 @@ def main():
         refList.append(inList.copy())
         inList.clear()
 
+    pieceList = []
+    for i in range(8):
+        for j in range(8):
+            if board[j][i] != " ":
+                pieceList.append(Piece(i, j, board[j][i][0], board[j][i][1]))
+
     running = True
     while running:
         
@@ -127,14 +133,18 @@ def main():
                                     selectColour,
                                     pygame.Rect(0, 0, i.width, i.height), 2)
                         
-                   
-        tileList.draw(canvas)
         for i in tileList.sprites():
-            [x, y] = find_element(tileList.sprites(), i, refList)
-            if board[y][x] != " ":
-                img = pygame.image.load(f"images\\{board[y][x]}.png")
-                img = pygame.transform.scale(img,(100,100))
-                canvas.blit(img, i)
+            if i.selected:
+                x, y = i.rect.x, i.rect.y
+                for j in pieceList:
+                    if j.rect.x == x and j.rect.y == y:
+                        for k in pieceMoves[j.piece](board, int(x/100), int(y/100)):
+                            print(k)
+                            pygame.draw.circle(canvas, (255, 255, 255), (k[0]*100+50, k[1]*100+50), 20)
+
+        tileList.draw(canvas)
+        for i in pieceList:
+            canvas.blit(i.image, (i.rect.x, i.rect.y))
         pygame.display.update()
 
 
@@ -172,51 +182,150 @@ def pawn_move(lst, row, col):
         if row+1>7:
             return moves
         if lst[row + 1][col] == " ":
-            moves.append([row+1][col])
+            moves.append([row+1, col])
             # double move add en passant to fgn :/
             if row == 1 and lst[row + 2][col] == " ":
-                moves.append([row-2][col])
+                moves.append([row-2, col])
         if col+1<7 and lst[row + 1][col+1] != " ":
-            moves.append([row+1][col+1])
+            moves.append([row+1, col+1])
         if col-1>-1 and lst[row + 1][col-1] != " ":
-            moves.append([row+1][col-1])
+            moves.append([row+1,col-1])
     if lst[row][col][0] == "w":
         if row-1<-1:
             return moves
         if lst[row - 1][col] == " ":
-            moves.append([row-1][col])
+            moves.append([row-1, col])
              # double move add en passant to fgn :/
             if row == 7 and lst[row - 2][col] == " ":
-                moves.append([row-2][col])
+                moves.append([row-2, col])
         if col+1<7 and lst[row + 1][col+1] != " ":
-            moves.append([row+1][col+1])
+            moves.append([row+1, col+1])
         if col-1>-1 and (lst[row + 1][col-1] != " " or lst[row + 1][col-1] != "e"):
-            moves.append([row+1][col-1])
+            moves.append([row+1, col-1])
     return moves
 
 def rook_move(lst, row, col):
     moves = []
     for i in range(col-1, -1, -1):
-        if lst[row][i] == " ": 
+        if lst[row][i] == " " or  lst[row][i] == "e": 
+            moves.append([row, i])
+        elif lst[row][i] == lst[row][col][0]: 
+            break
+        else:
+            moves.append([row, i])
+            break
+    for i in range(col+1, 8):
+        if lst[row][i] == " " or  lst[row][i] == "e": 
+            moves.append([row, i])
+        elif lst[row][i] == lst[row][col][0]: 
+            break
+        else:
+            moves.append([row, i])
+            break
+    for i in range(row-1, -1, -1):
+        if lst[i][col] == " " or  lst[i][col] == "e": 
+            moves.append(i, col)
+        elif lst[i][col] == lst[row][col][0]: 
+            break
+        else:
+            moves.append(i, col)
+            break
+    for i in range(row+1, 8):
+        if lst[i][col] == " " or  lst[i][col] == "e": 
+            moves.append(i, col)
+        elif lst[i][col] == lst[row][col][0]: 
+            break
+        else:
+            moves.append(i, col)
+            break
+    return moves
 
+def bishop_move(lst, row, col):
+    moves = []
+    i,j = row-1, col+1
+    while i>-1 and j<8:
+        if lst[i][j] == " " or  lst[i][j] == "e": 
+            moves.append(i, j)
+        elif lst[i][j] == lst[row][col][0]: 
+            break
+        else:
+            moves.append(i, j)
+            break
+        i-=1
+        j+=1
+    i,j = row+1, col+1
+    while i<8 and j<8:
+        if lst[i][j] == " " or  lst[i][j] == "e": 
+            moves.append(i, j)
+        elif lst[i][j] == lst[row][col][0]: 
+            break
+        else:
+            moves.append(i, j)
+            break
+        i+=1
+        j+=1
+    i,j = row-1, col-1
+    while i>-1 and j>-1:
+        if lst[i][j] == " " or  lst[i][j] == "e": 
+            moves.append(i, j)
+        elif lst[i][j] == lst[row][col][0]: 
+            break
+        else:
+            moves.append(i, j)
+            break
+        i-=1
+        j-=1
+    i,j = row+1, col-1
+    while i<8 and j>-1:
+        if lst[i][j] == " " or  lst[i][j] == "e": 
+            moves.append(i, j)
+        elif lst[i][j] == lst[row][col][0]: 
+            break
+        else:
+            moves.append(i, j)
+            break
+        i+=1
+        j-=1
+    return moves
 
+def knight_move(lst, row, col):
+    moves = []
+    if row-2>-1:
+        if col+1<8 and lst[row-2][col+1] != lst[row][col][0]:
+            moves.append([row-2, col+1])
+        if col-1>-1 and lst[row-2][col-1] != lst[row][col][0]:
+            moves.append([row-2, col-1])
+    if row+2<8:
+        if col+1<8 and lst[row-2][col+1] != lst[row][col][0]:
+            moves.append([row+2, col+1])
+        if col-1>-1 and lst[row-2][col-1] != lst[row][col][0]:
+            moves.append([row+2, col-1])
+    if col-2>-1:
+        if row+1<8 and lst[row+1][col-2] != lst[row][col][0]:
+            moves.append([row+1, col-2])
+        if row-1>-1 and lst[row-1][col-2] != lst[row][col][0]:
+            moves.append([row-1, col-2])
+    if col+2<8:
+        if row+1<8 and lst[row+1][col+2] != lst[row][col][0]:
+            moves.append([row+1, col+2])
+        if row-1>-1 and lst[row-1][col+2] != lst[row][col][0]:
+            moves.append([row-1, col+2])
+    return moves
+
+def queen_move(lst, row, col):
+    moves = [rook_move(lst, row, col), bishop_move(lst, row, col)]
+    moves = [j for i in moves for j in i]
+    return moves
 
 class Piece(pygame.sprite.Sprite):
-    def __init__(self, locx, locy, colour, height, width, piece):
+    def __init__(self, locx, locy, colour, piece):
         super().__init__()
-  
-        self.image = pygame.Surface([width, height])
-
         img = pygame.image.load(f"images\\{colour}{piece}.png")
         img = pygame.transform.scale(img,(100,100))
-        canvas.blit(img, self.image)
 
+        self.image = img
         self.colour = colour
         self.piece = piece
-
-        def moveset(self):
-
-
 
         self.rect = self.image.get_rect()
         self.rect.x = locx*100
