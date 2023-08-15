@@ -209,7 +209,7 @@ def rook_move(lst, row, col):
     for i in range(col-1, -1, -1):
         if lst[row][i] == " " or  lst[row][i] == "e": 
             moves.append([row, i])
-        elif lst[row][i] == lst[row][col][0]: 
+        elif lst[row][i][0] == lst[row][col][0]: 
             break
         else:
             moves.append([row, i])
@@ -217,26 +217,26 @@ def rook_move(lst, row, col):
     for i in range(col+1, 8):
         if lst[row][i] == " " or  lst[row][i] == "e": 
             moves.append([row, i])
-        elif lst[row][i] == lst[row][col][0]: 
+        elif lst[row][i][0] == lst[row][col][0]: 
             break
         else:
             moves.append([row, i])
             break
     for i in range(row-1, -1, -1):
         if lst[i][col] == " " or  lst[i][col] == "e": 
-            moves.append(i, col)
-        elif lst[i][col] == lst[row][col][0]: 
+            moves.append([i, col])
+        elif lst[i][col][0] == lst[row][col][0]: 
             break
         else:
-            moves.append(i, col)
+            moves.append([i, col])
             break
     for i in range(row+1, 8):
         if lst[i][col] == " " or  lst[i][col] == "e": 
             moves.append(i, col)
-        elif lst[i][col] == lst[row][col][0]: 
+        elif lst[i][col][0] == lst[row][col][0]: 
             break
         else:
-            moves.append(i, col)
+            moves.append([i, col])
             break
     return moves
 
@@ -245,44 +245,44 @@ def bishop_move(lst, row, col):
     i,j = row-1, col+1
     while i>-1 and j<8:
         if lst[i][j] == " " or  lst[i][j] == "e": 
-            moves.append(i, j)
-        elif lst[i][j] == lst[row][col][0]: 
+            moves.append([i, j])
+        elif lst[i][j][0] == lst[row][col][0]: 
             break
         else:
-            moves.append(i, j)
+            moves.append([i, j])
             break
         i-=1
         j+=1
     i,j = row+1, col+1
     while i<8 and j<8:
         if lst[i][j] == " " or  lst[i][j] == "e": 
-            moves.append(i, j)
-        elif lst[i][j] == lst[row][col][0]: 
+            moves.append([i, j])
+        elif lst[i][j][0] == lst[row][col][0]: 
             break
         else:
-            moves.append(i, j)
+            moves.append([i, j])
             break
         i+=1
         j+=1
     i,j = row-1, col-1
     while i>-1 and j>-1:
         if lst[i][j] == " " or  lst[i][j] == "e": 
-            moves.append(i, j)
-        elif lst[i][j] == lst[row][col][0]: 
+            moves.append([i, j])
+        elif lst[i][j][0] == lst[row][col][0]: 
             break
         else:
-            moves.append(i, j)
+            moves.append([i, j])
             break
         i-=1
         j-=1
     i,j = row+1, col-1
     while i<8 and j>-1:
         if lst[i][j] == " " or  lst[i][j] == "e": 
-            moves.append(i, j)
-        elif lst[i][j] == lst[row][col][0]: 
+            moves.append([i, j])
+        elif lst[i][j][0] == lst[row][col][0]: 
             break
         else:
-            moves.append(i, j)
+            moves.append([i, j])
             break
         i+=1
         j-=1
@@ -291,24 +291,24 @@ def bishop_move(lst, row, col):
 def knight_move(lst, row, col):
     moves = []
     if row-2>-1:
-        if col+1<8 and lst[row-2][col+1] != lst[row][col][0]:
+        if col+1<8 and lst[row-2][col+1][0] != lst[row][col][0]:
             moves.append([row-2, col+1])
-        if col-1>-1 and lst[row-2][col-1] != lst[row][col][0]:
+        if col-1>-1 and lst[row-2][col-1][0] != lst[row][col][0]:
             moves.append([row-2, col-1])
     if row+2<8:
-        if col+1<8 and lst[row-2][col+1] != lst[row][col][0]:
+        if col+1<8 and lst[row-2][col+1][0] != lst[row][col][0]:
             moves.append([row+2, col+1])
-        if col-1>-1 and lst[row-2][col-1] != lst[row][col][0]:
+        if col-1>-1 and lst[row-2][col-1][0] != lst[row][col][0]:
             moves.append([row+2, col-1])
     if col-2>-1:
-        if row+1<8 and lst[row+1][col-2] != lst[row][col][0]:
+        if row+1<8 and lst[row+1][col-2][0] != lst[row][col][0]:
             moves.append([row+1, col-2])
-        if row-1>-1 and lst[row-1][col-2] != lst[row][col][0]:
+        if row-1>-1 and lst[row-1][col-2][0] != lst[row][col][0]:
             moves.append([row-1, col-2])
     if col+2<8:
-        if row+1<8 and lst[row+1][col+2] != lst[row][col][0]:
+        if row+1<8 and lst[row+1][col+2][0] != lst[row][col][0]:
             moves.append([row+1, col+2])
-        if row-1>-1 and lst[row-1][col+2] != lst[row][col][0]:
+        if row-1>-1 and lst[row-1][col+2][0] != lst[row][col][0]:
             moves.append([row-1, col+2])
     return moves
 
