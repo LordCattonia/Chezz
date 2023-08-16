@@ -132,6 +132,10 @@ def main():
                     if i.moveable:
                         x, y = find_element(tileList, i, refList)
                         a, b = i.oldLoc
+                        if i.pieceSelected[1] == "p" and a == 1 and y == 3:
+                            board[2][x] = "e"
+                        if i.pieceSelected[1] == "p" and a == 6 and y == 4:
+                            board[5][x] = "e"
                         board[a][b] = " "
                         board[y][x] = i.pieceSelected
                         if turn == "w":
@@ -153,7 +157,7 @@ def main():
         pieceList = []
         for i in range(8):
             for j in range(8):
-                if board[j][i] != " ":
+                if board[j][i] != " " and board[j][i] != "e":
                     pieceList.append(Piece(i, j, board[j][i][0], board[j][i][1]))            
         for i in tileList.sprites():
             if i.selected:
@@ -211,9 +215,9 @@ def pawn_move(lst, row, col):
             # double move add en passant to fgn :/
             if row == 1 and lst[row + 2][col] == " ":
                 moves.append([row+2, col])
-        if col+1<7 and (lst[row + 1][col+1] != " " or lst[row + 1][col+1] == "e"):
+        if col+1<7 and (lst[row + 1][col+1][0] != lst[row][col][0] or lst[row + 1][col+1] == "e") and lst[row + 1][col-1] == " ":
             moves.append([row+1, col+1])
-        if col-1>-1 and (lst[row + 1][col-1] != " " or lst[row + 1][col-1] == "e"):
+        if col-1>-1 and (lst[row + 1][col-1][0] != lst[row][col][0] or lst[row + 1][col-1] == "e") and lst[row + 1][col-1] == " ":
             moves.append([row+1,col-1])
     if lst[row][col][0] == "w":
         if row-1<-1:
@@ -223,16 +227,16 @@ def pawn_move(lst, row, col):
              # double move add en passant to fgn :/
             if row == 6 and lst[row - 2][col] == " ":
                 moves.append([row-2, col])
-        if col+1<7 and (lst[row - 1][col+1] != " " or lst[row - 1][col+1] == "e"):
+        if col+1<7 and (lst[row - 1][col+1][0] != lst[row][col][0] or lst[row - 1][col+1] == "e") and lst[row + 1][col-1] == " ":
             moves.append([row-1, col+1])
-        if col-1>-1 and (lst[row - 1][col-1] != " " or lst[row - 1][col-1] == "e"):
+        if col-1>-1 and (lst[row - 1][col-1][0] != lst[row][col][0] or lst[row - 1][col-1] == "e") and lst[row + 1][col-1] == " ":
             moves.append([row-1, col-1])
     return moves
 
 def rook_move(lst, row, col):
     moves = []
     for i in range(col-1, -1, -1):
-        if lst[row][i] == " " or  lst[row][i] == "e": 
+        if lst[row][i] == " ": 
             moves.append([row, i])
         elif lst[row][i][0] == lst[row][col][0]: 
             break
@@ -240,7 +244,7 @@ def rook_move(lst, row, col):
             moves.append([row, i])
             break
     for i in range(col+1, 8):
-        if lst[row][i] == " " or  lst[row][i] == "e": 
+        if lst[row][i] == " ": 
             moves.append([row, i])
         elif lst[row][i][0] == lst[row][col][0]: 
             break
@@ -248,7 +252,7 @@ def rook_move(lst, row, col):
             moves.append([row, i])
             break
     for i in range(row-1, -1, -1):
-        if lst[i][col] == " " or  lst[i][col] == "e": 
+        if lst[i][col] == " ": 
             moves.append([i, col])
         elif lst[i][col][0] == lst[row][col][0]: 
             break
@@ -256,7 +260,7 @@ def rook_move(lst, row, col):
             moves.append([i, col])
             break
     for i in range(row+1, 8):
-        if lst[i][col] == " " or  lst[i][col] == "e": 
+        if lst[i][col] == " ": 
             moves.append([i, col])
         elif lst[i][col][0] == lst[row][col][0]: 
             break
