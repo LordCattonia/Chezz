@@ -33,6 +33,8 @@ board = [["br", "bn", "bb", "bq", "bk", "bb", "bn", "br"],
 
 def main():
     
+    turn = "w"
+
     pieceMoves = {
         "k": king_move,
         "p": pawn_move,
@@ -78,11 +80,6 @@ def main():
         refList.append(inList.copy())
         inList.clear()
 
-    pieceList = []
-    for i in range(8):
-        for j in range(8):
-            if board[j][i] != " ":
-                pieceList.append(Piece(i, j, board[j][i][0], board[j][i][1]))
 
     running = True
     while running:
@@ -94,18 +91,6 @@ def main():
             if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 # get a list of all sprites that are under the mouse cursor
                 clicked_sprites = [s for s in tileList if s.rect.collidepoint(pygame.mouse.get_pos())]
-                if i.moveable:
-                    i.pieceMove
-                for i in tileList:
-                    if i.cb:
-                            pygame.draw.rect(i.image,
-                                colourb,
-                                pygame.Rect(0, 0, i.width, i.height))
-                    else:
-                        pygame.draw.rect(i.image,
-                            colour,
-                            pygame.Rect(0, 0, i.width, i.height))
-                    i.moveable = False
                 for i in clicked_sprites:
                     if i.selected:
                         i.selected = False
@@ -144,16 +129,43 @@ def main():
                         pygame.draw.rect(i.image,
                                     selectColour,
                                     pygame.Rect(0, 0, i.width, i.height), 2)
-                        
+                    if i.moveable:
+                        x, y = find_element(tileList, i, refList)
+                        a, b = i.oldLoc
+                        board[a][b] = " "
+                        board[y][x] = i.pieceSelected
+                        if turn == "w":
+                            turn = "b"
+                        else: turn = "w"
+                for i in tileList:
+                    if i.cb:
+                            pygame.draw.rect(i.image,
+                                colourb,
+                                pygame.Rect(0, 0, i.width, i.height))
+                    else:
+                        pygame.draw.rect(i.image,
+                            colour,
+                            pygame.Rect(0, 0, i.width, i.height))
+                    i.moveable = False
+                    i.pieceSelected = " "
+                    
+        
+        pieceList = []
+        for i in range(8):
+            for j in range(8):
+                if board[j][i] != " ":
+                    pieceList.append(Piece(i, j, board[j][i][0], board[j][i][1]))            
         for i in tileList.sprites():
             if i.selected:
                 x, y = i.rect.x, i.rect.y
                 for j in pieceList:
-                    if j.rect.x == x and j.rect.y == y:
+                    if j.rect.x == x and j.rect.y == y and board[int(y/100)][int(x/100)][0] == turn:
                         for k in pieceMoves[j.piece](board, int(y/100), int(x/100)):
                             MoveTo = tileList.sprites()[refList[k[1]][k[0]]]
                             pygame.draw.circle(MoveTo.image, (255, 255, 255), (50,50), 20)
                             MoveTo.moveable = True
+                            MoveTo.pieceSelected = board[int(y/100)][int(x/100)]
+                            MoveTo.oldLoc = [int(y/100), int(x/100)]
 
         tileList.draw(canvas)
         for i in pieceList:
@@ -363,8 +375,9 @@ class Tile(pygame.sprite.Sprite):
         self.cb = False
         if colour != (90, 180, 120): self.cb = True
 
-
+        self.oldLoc = [0,0]
         self.moveable = False
+        self.pieceSelected = " "
         self.selected = False
 
         self.rect = self.image.get_rect()
