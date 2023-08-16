@@ -94,6 +94,18 @@ def main():
             if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 # get a list of all sprites that are under the mouse cursor
                 clicked_sprites = [s for s in tileList if s.rect.collidepoint(pygame.mouse.get_pos())]
+                if i.moveable:
+                    i.pieceMove
+                for i in tileList:
+                    if i.cb:
+                            pygame.draw.rect(i.image,
+                                colourb,
+                                pygame.Rect(0, 0, i.width, i.height))
+                    else:
+                        pygame.draw.rect(i.image,
+                            colour,
+                            pygame.Rect(0, 0, i.width, i.height))
+                    i.moveable = False
                 for i in clicked_sprites:
                     if i.selected:
                         i.selected = False
@@ -138,9 +150,10 @@ def main():
                 x, y = i.rect.x, i.rect.y
                 for j in pieceList:
                     if j.rect.x == x and j.rect.y == y:
-                        for k in pieceMoves[j.piece](board, int(x/100), int(y/100)):
-                            print(k)
-                            pygame.draw.circle(canvas, (255, 255, 255), (k[0]*100+50, k[1]*100+50), 20)
+                        for k in pieceMoves[j.piece](board, int(y/100), int(x/100)):
+                            MoveTo = tileList.sprites()[refList[k[1]][k[0]]]
+                            pygame.draw.circle(MoveTo.image, (255, 255, 255), (50,50), 20)
+                            MoveTo.moveable = True
 
         tileList.draw(canvas)
         for i in pieceList:
@@ -185,10 +198,10 @@ def pawn_move(lst, row, col):
             moves.append([row+1, col])
             # double move add en passant to fgn :/
             if row == 1 and lst[row + 2][col] == " ":
-                moves.append([row-2, col])
-        if col+1<7 and lst[row + 1][col+1] != " ":
+                moves.append([row+2, col])
+        if col+1<7 and (lst[row + 1][col+1] != " " or lst[row + 1][col+1] == "e"):
             moves.append([row+1, col+1])
-        if col-1>-1 and lst[row + 1][col-1] != " ":
+        if col-1>-1 and (lst[row + 1][col-1] != " " or lst[row + 1][col-1] == "e"):
             moves.append([row+1,col-1])
     if lst[row][col][0] == "w":
         if row-1<-1:
@@ -196,12 +209,12 @@ def pawn_move(lst, row, col):
         if lst[row - 1][col] == " ":
             moves.append([row-1, col])
              # double move add en passant to fgn :/
-            if row == 7 and lst[row - 2][col] == " ":
+            if row == 6 and lst[row - 2][col] == " ":
                 moves.append([row-2, col])
-        if col+1<7 and lst[row + 1][col+1] != " ":
-            moves.append([row+1, col+1])
-        if col-1>-1 and (lst[row + 1][col-1] != " " or lst[row + 1][col-1] != "e"):
-            moves.append([row+1, col-1])
+        if col+1<7 and (lst[row - 1][col+1] != " " or lst[row - 1][col+1] == "e"):
+            moves.append([row-1, col+1])
+        if col-1>-1 and (lst[row - 1][col-1] != " " or lst[row - 1][col-1] == "e"):
+            moves.append([row-1, col-1])
     return moves
 
 def rook_move(lst, row, col):
@@ -232,7 +245,7 @@ def rook_move(lst, row, col):
             break
     for i in range(row+1, 8):
         if lst[i][col] == " " or  lst[i][col] == "e": 
-            moves.append(i, col)
+            moves.append([i, col])
         elif lst[i][col][0] == lst[row][col][0]: 
             break
         else:
@@ -350,6 +363,8 @@ class Tile(pygame.sprite.Sprite):
         self.cb = False
         if colour != (90, 180, 120): self.cb = True
 
+
+        self.moveable = False
         self.selected = False
 
         self.rect = self.image.get_rect()
