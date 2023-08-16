@@ -215,9 +215,9 @@ def pawn_move(lst, row, col):
             # double move add en passant to fgn :/
             if row == 1 and lst[row + 2][col] == " ":
                 moves.append([row+2, col])
-        if col+1<7 and (lst[row + 1][col+1][0] != lst[row][col][0] or lst[row + 1][col+1] == "e") and lst[row + 1][col-1] == " ":
+        if col+1<7 and (lst[row + 1][col+1][0] != lst[row][col][0] or lst[row + 1][col+1] == "e") and lst[row + 1][col-1] != " ":
             moves.append([row+1, col+1])
-        if col-1>-1 and (lst[row + 1][col-1][0] != lst[row][col][0] or lst[row + 1][col-1] == "e") and lst[row + 1][col-1] == " ":
+        if col-1>-1 and (lst[row + 1][col-1][0] != lst[row][col][0] or lst[row + 1][col-1] == "e") and lst[row + 1][col-1] != " ":
             moves.append([row+1,col-1])
     if lst[row][col][0] == "w":
         if row-1<-1:
@@ -227,9 +227,9 @@ def pawn_move(lst, row, col):
              # double move add en passant to fgn :/
             if row == 6 and lst[row - 2][col] == " ":
                 moves.append([row-2, col])
-        if col+1<7 and (lst[row - 1][col+1][0] != lst[row][col][0] or lst[row - 1][col+1] == "e") and lst[row + 1][col-1] == " ":
+        if col+1<7 and (lst[row - 1][col+1][0] != lst[row][col][0] or lst[row - 1][col+1] == "e") and lst[row + 1][col-1] != " ":
             moves.append([row-1, col+1])
-        if col-1>-1 and (lst[row - 1][col-1][0] != lst[row][col][0] or lst[row - 1][col-1] == "e") and lst[row + 1][col-1] == " ":
+        if col-1>-1 and (lst[row - 1][col-1][0] != lst[row][col][0] or lst[row - 1][col-1] == "e") and lst[row + 1][col-1] != " ":
             moves.append([row-1, col-1])
     return moves
 
