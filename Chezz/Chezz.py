@@ -130,17 +130,34 @@ def main():
                                     selectColour,
                                     pygame.Rect(0, 0, i.width, i.height), 2)
                     if i.moveable:
-                        x, y = find_element(tileList, i, refList)
+                        [x, y] = find_element(tileList.sprites(), i, refList)
                         a, b = i.oldLoc
                         if i.pieceSelected[1] == "p" and a == 1 and y == 3:
-                            board[2][x] = "e"
+                            board[2][x] = "be"
                         if i.pieceSelected[1] == "p" and a == 6 and y == 4:
-                            board[5][x] = "e"
+                            board[5][x] = "we"
+                        if board[y][x] == "we":
+                            board[y-1][x] = " "
+                        if board[y][x] == "be":
+                            board[y+1][x] = " "
                         board[a][b] = " "
-                        board[y][x] = i.pieceSelected
+                        if i.pieceSelected == "wp" and y == 0:
+                             board[y][x] = "wq"
+                        elif i.pieceSelected == "bp" and y == 7:
+                             board[y][x] = "bq"
+                        else: board[y][x] = i.pieceSelected
                         if turn == "w":
                             turn = "b"
-                        else: turn = "w"
+                            for j in range(len(board)):
+                                for k in range(len(board[j])):
+                                    if "be" in board[j][k]:
+                                        board[j][k] = " "
+                        else: 
+                            turn = "w"
+                            for j in range(len(board)):
+                                for k in range(len(board[j])):
+                                    if "we" in board[j][k]:
+                                        board[j][k] = " "
                 for i in tileList:
                     if i.cb:
                             pygame.draw.rect(i.image,
@@ -157,7 +174,7 @@ def main():
         pieceList = []
         for i in range(8):
             for j in range(8):
-                if board[j][i] != " " and board[j][i] != "e":
+                if board[j][i] != " " and not "e" in board[j][i]:
                     pieceList.append(Piece(i, j, board[j][i][0], board[j][i][1]))            
         for i in tileList.sprites():
             if i.selected:
@@ -165,11 +182,42 @@ def main():
                 for j in pieceList:
                     if j.rect.x == x and j.rect.y == y and board[int(y/100)][int(x/100)][0] == turn:
                         for k in pieceMoves[j.piece](board, int(y/100), int(x/100)):
-                            MoveTo = tileList.sprites()[refList[k[1]][k[0]]]
-                            pygame.draw.circle(MoveTo.image, (255, 255, 255), (50,50), 20)
-                            MoveTo.moveable = True
-                            MoveTo.pieceSelected = board[int(y/100)][int(x/100)]
-                            MoveTo.oldLoc = [int(y/100), int(x/100)]
+                            [x, y] = find_element(tileList.sprites(), i, refList)
+                        a, b = i.oldLoc
+                        if i.pieceSelected[1] == "p" and a == 1 and y == 3:
+                            board[2][x] = "be"
+                        if i.pieceSelected[1] == "p" and a == 6 and y == 4:
+                            board[5][x] = "we"
+                        if board[y][x] == "we":
+                            board[y-1][x] = " "
+                        if board[y][x] == "be":
+                            board[y+1][x] = " "
+                        board[a][b] = " "
+                        if i.pieceSelected == "wp" and y == 0:
+                             board[y][x] = "wq"
+                        elif i.pieceSelected == "bp" and y == 7:
+                             board[y][x] = "bq"
+                        else: board[y][x] = i.pieceSelected
+                        if turn == "w":
+                            turn = "b"
+                            for j in range(len(board)):
+                                for k in range(len(board[j])):
+                                    if "be" in board[j][k]:
+                                        board[j][k] = " "
+                        else: 
+                            turn = "w"
+                            for j in range(len(board)):
+                                for k in range(len(board[j])):
+                                    if "we" in board[j][k]:
+                                        board[j][k] = " "
+
+
+                            if is_check(board, turn, pieceMoves):
+                                MoveTo = tileList.sprites()[refList[k[1]][k[0]]]
+                                pygame.draw.circle(MoveTo.image, (255, 255, 255), (50,50), 20)
+                                MoveTo.moveable = True
+                                MoveTo.pieceSelected = board[int(y/100)][int(x/100)]
+                                MoveTo.oldLoc = [int(y/100), int(x/100)]
 
         tileList.draw(canvas)
         for i in pieceList:
@@ -215,9 +263,9 @@ def pawn_move(lst, row, col):
             # double move add en passant to fgn :/
             if row == 1 and lst[row + 2][col] == " ":
                 moves.append([row+2, col])
-        if col+1<7 and (lst[row + 1][col+1][0] != lst[row][col][0] or lst[row + 1][col+1] == "e") and lst[row + 1][col-1] != " ":
+        if col+1<8 and (lst[row + 1][col+1][0] != lst[row][col][0] or lst[row + 1][col+1] == "we") and lst[row + 1][col+1] != " ":
             moves.append([row+1, col+1])
-        if col-1>-1 and (lst[row + 1][col-1][0] != lst[row][col][0] or lst[row + 1][col-1] == "e") and lst[row + 1][col-1] != " ":
+        if col-1>-1 and (lst[row + 1][col-1][0] != lst[row][col][0] or lst[row + 1][col-1] == "we") and lst[row + 1][col-1] != " ":
             moves.append([row+1,col-1])
     if lst[row][col][0] == "w":
         if row-1<-1:
@@ -227,9 +275,9 @@ def pawn_move(lst, row, col):
              # double move add en passant to fgn :/
             if row == 6 and lst[row - 2][col] == " ":
                 moves.append([row-2, col])
-        if col+1<7 and (lst[row - 1][col+1][0] != lst[row][col][0] or lst[row - 1][col+1] == "e") and lst[row + 1][col-1] != " ":
+        if col+1<8 and (lst[row - 1][col+1][0] != lst[row][col][0] or lst[row - 1][col+1] == "be") and lst[row - 1][col+1] != " ":
             moves.append([row-1, col+1])
-        if col-1>-1 and (lst[row - 1][col-1][0] != lst[row][col][0] or lst[row - 1][col-1] == "e") and lst[row + 1][col-1] != " ":
+        if col-1>-1 and (lst[row - 1][col-1][0] != lst[row][col][0] or lst[row - 1][col-1] == "be") and lst[row - 1][col-1] != " ":
             moves.append([row-1, col-1])
     return moves
 
@@ -345,6 +393,19 @@ def queen_move(lst, row, col):
     moves = [rook_move(lst, row, col), bishop_move(lst, row, col)]
     moves = [j for i in moves for j in i]
     return moves
+
+def is_check(lst, move, pieceMoves):
+    canMove = True
+    for i in lst:
+        for j in i:
+            if j[0] == move:
+                for a in range(len(board)):
+                    for b in range(len(board[a])):
+                        if len(board[a][b])>1 and board[a][b][0]!= move and not "e" in board[a][b]:
+                            for k in pieceMoves[board[a][b][1]](board, a, b):
+                                if ("k" in board[k[0]][k[1]]):
+                                    canMove = False
+    return canMove
 
 class Piece(pygame.sprite.Sprite):
     def __init__(self, locx, locy, colour, piece):
