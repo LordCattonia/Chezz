@@ -169,6 +169,7 @@ def main():
                             pygame.Rect(0, 0, i.width, i.height))
                     i.moveable = False
                     i.pieceSelected = " "
+                    i.oldLoc = " "
                     
         
         pieceList = []
@@ -179,45 +180,20 @@ def main():
         for i in tileList.sprites():
             if i.selected:
                 x, y = i.rect.x, i.rect.y
+                [a, b] = find_element(tileList.sprites(), i, refList)
                 for j in pieceList:
-                    if j.rect.x == x and j.rect.y == y and board[int(y/100)][int(x/100)][0] == turn:
-                        for k in pieceMoves[j.piece](board, int(y/100), int(x/100)):
-                            [x, y] = find_element(tileList.sprites(), i, refList)
-                        a, b = i.oldLoc
-                        if i.pieceSelected[1] == "p" and a == 1 and y == 3:
-                            board[2][x] = "be"
-                        if i.pieceSelected[1] == "p" and a == 6 and y == 4:
-                            board[5][x] = "we"
-                        if board[y][x] == "we":
-                            board[y-1][x] = " "
-                        if board[y][x] == "be":
-                            board[y+1][x] = " "
-                        board[a][b] = " "
-                        if i.pieceSelected == "wp" and y == 0:
-                             board[y][x] = "wq"
-                        elif i.pieceSelected == "bp" and y == 7:
-                             board[y][x] = "bq"
-                        else: board[y][x] = i.pieceSelected
-                        if turn == "w":
-                            turn = "b"
-                            for j in range(len(board)):
-                                for k in range(len(board[j])):
-                                    if "be" in board[j][k]:
-                                        board[j][k] = " "
-                        else: 
-                            turn = "w"
-                            for j in range(len(board)):
-                                for k in range(len(board[j])):
-                                    if "we" in board[j][k]:
-                                        board[j][k] = " "
-
-
+                    if j.rect.x == x and j.rect.y == y and board[b][a][0] == turn:
+                        for k in pieceMoves[j.piece](board, b, a):
+                            newBoard = board[:]
+                            newBoard[b][a] = " "
+                            newBoard[k[1]][k[0]] = board[b][a]
+                            print(newBoard, board)
                             if is_check(board, turn, pieceMoves):
                                 MoveTo = tileList.sprites()[refList[k[1]][k[0]]]
                                 pygame.draw.circle(MoveTo.image, (255, 255, 255), (50,50), 20)
                                 MoveTo.moveable = True
-                                MoveTo.pieceSelected = board[int(y/100)][int(x/100)]
-                                MoveTo.oldLoc = [int(y/100), int(x/100)]
+                                MoveTo.pieceSelected = board[b][a]
+                                MoveTo.oldLoc = [b, a]
 
         tileList.draw(canvas)
         for i in pieceList:
