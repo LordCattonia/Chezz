@@ -184,11 +184,13 @@ def main():
                 for j in pieceList:
                     if j.rect.x == x and j.rect.y == y and board[b][a][0] == turn:
                         for k in pieceMoves[j.piece](board, b, a):
-                            newBoard = board[:]
+                            newBoard = []
+                            for i in board:
+                                newBoard.append(i.copy())
                             newBoard[b][a] = " "
                             newBoard[k[1]][k[0]] = board[b][a]
-                            print(newBoard, board)
-                            if is_check(board, turn, pieceMoves):
+                            print(k)
+                            if is_check(newBoard, turn, pieceMoves):
                                 MoveTo = tileList.sprites()[refList[k[1]][k[0]]]
                                 pygame.draw.circle(MoveTo.image, (255, 255, 255), (50,50), 20)
                                 MoveTo.moveable = True
@@ -372,14 +374,15 @@ def queen_move(lst, row, col):
 
 def is_check(lst, move, pieceMoves):
     canMove = True
+    print(lst)
     for i in lst:
         for j in i:
             if j[0] == move:
-                for a in range(len(board)):
-                    for b in range(len(board[a])):
-                        if len(board[a][b])>1 and board[a][b][0]!= move and not "e" in board[a][b]:
-                            for k in pieceMoves[board[a][b][1]](board, a, b):
-                                if ("k" in board[k[0]][k[1]]):
+                for a in range(len(lst)):
+                    for b in range(len(lst[a])):
+                        if len(lst[a][b])>1 and lst[a][b][0]!= move and not "e" in lst[a][b]:
+                            for k in pieceMoves[lst[a][b][1]](lst, a, b):
+                                if ("k" in lst[k[0]][k[1]]):
                                     canMove = False
     return canMove
 
