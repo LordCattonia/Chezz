@@ -1,5 +1,4 @@
-﻿import random
-import pygame
+﻿import pygame
 import pygame.font
 
 COLOR = (255, 100, 98)
@@ -34,6 +33,11 @@ board = [["br", "bn", "bb", "bq", "bk", "bb", "bn", "br"],
 def main():
     
     turn = "w"
+    halfmoves = 0
+
+    piecesRemainingW = ["wp", "wp", "wp", "wp", "wp", "wp", "wp", "wp", "wr", "wn", "wb", "wq", "wk", "wb", "wn", "wr"]
+    piecesRemainingB = ["br", "bn", "bb", "bq", "bk", "bb", "bn", "br", "bp", "bp", "bp", "bp", "bp", "bp", "bp", "bp"]
+
 
     pieceMoves = {
         "k": king_move,
@@ -184,13 +188,7 @@ def main():
                 for j in pieceList:
                     if j.rect.x == x and j.rect.y == y and board[b][a][0] == turn:
                         for k in pieceMoves[j.piece](board, b, a):
-                            newBoard = []
-                            for i in board:
-                                newBoard.append(i.copy())
-                            newBoard[b][a] = " "
-                            newBoard[k[1]][k[0]] = board[b][a]
-                            print(k)
-                            if is_check(newBoard, turn, pieceMoves):
+                            if is_check(board, turn, pieceMoves, k, board[b][a], (a,b)):
                                 MoveTo = tileList.sprites()[refList[k[1]][k[0]]]
                                 pygame.draw.circle(MoveTo.image, (255, 255, 255), (50,50), 20)
                                 MoveTo.moveable = True
@@ -372,15 +370,19 @@ def queen_move(lst, row, col):
     moves = [j for i in moves for j in i]
     return moves
 
-def is_check(lst, move, pieceMoves):
+def is_check(oldlst, turn, pieceMoves, move, piece, oldloc):
     canMove = True
-    print(lst)
+    lst = []
+    for i in oldlst:
+        lst.append(i.copy())
+    lst[oldloc[1]][oldloc[0]] = " "
+    lst[move[0]][move[1]] = piece
     for i in lst:
         for j in i:
-            if j[0] == move:
+            if j[0] == turn:
                 for a in range(len(lst)):
                     for b in range(len(lst[a])):
-                        if len(lst[a][b])>1 and lst[a][b][0]!= move and not "e" in lst[a][b]:
+                        if len(lst[a][b])>1 and lst[a][b][0]!= turn and not "e" in lst[a][b]:
                             for k in pieceMoves[lst[a][b][1]](lst, a, b):
                                 if ("k" in lst[k[0]][k[1]]):
                                     canMove = False
