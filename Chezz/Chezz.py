@@ -1,36 +1,32 @@
 ﻿import pygame
 import pygame.font
 
-COLOR = (255, 100, 98)
-SURFACE_COLOR = (167, 255, 100)
-colour = (90, 180, 120)
-colourb = (180, 200, 180)
-selectColour = (255, 120, 120)
-
-'''
-try: input = int(input("How many players(1/2): "))
-except: print("Please input a correct number, though im lazy so ur starting in 2 player mode :P")
-if input>2 or input<1:
-    print("Please input a correct number, though im lazy so ur starting in 2 player mode :P") '''
-
-pygame.init()
-
-  
-canvas = pygame.display.set_mode((800, 800))
-pygame.display.set_caption("Chessish kindof thing")
-
-font = pygame.font.Font(None, 100)
-
-board = [["br", "bn", "bb", "bq", "bk", "bb", "bn", "br"],
-         ["bp", "bp", "bp", "bp", "bp", "bp", "bp", "bp"],
-         [" ", " ", " ", " ", " ", " ", " ", " "],
-         [" ", " ", " ", " ", " ", " ", " ", " "],
-         [" ", " ", " ", " ", " ", " ", " ", " "],
-         [" ", " ", " ", " ", " ", " ", " ", " "],
-         ["wp", "wp", "wp", "wp", "wp", "wp", "wp", "wp"],
-         ["wr", "wn", "wb", "wq", "wk", "wb", "wn", "wr"]]
-
 def main():
+    COLOR = (255, 100, 98)
+    SURFACE_COLOR = (167, 255, 100)
+    colour = (90, 180, 120)
+    colourb = (180, 200, 180)
+    selectColour = (255, 120, 120)
+
+    '''
+    try: input = int(input("How many players(1/2): "))
+    except: print("Please input a correct number, though im lazy so ur starting in 2 player mode :P")
+    if input>2 or input<1:
+        print("Please input a correct number, though im lazy so ur starting in 2 player mode :P") '''
+
+    pygame.init()
+
+    canvas = pygame.display.set_mode((800, 800))
+    pygame.display.set_caption("Chessish kindof thing")
+
+    board = [["br", "bn", "bb", "bq", "bk", "bb", "bn", "br"],
+             ["bp", "bp", "bp", "bp", "bp", "bp", "bp", "bp"],
+             [" ", " ", " ", " ", " ", " ", " ", " "],
+             [" ", " ", " ", " ", " ", " ", " ", " "],
+             [" ", " ", " ", " ", " ", " ", " ", " "],
+             [" ", " ", " ", " ", " ", " ", " ", " "],
+             ["wp", "wp", "wp", "wp", "wp", "wp", "wp", "wp"],
+             ["wr", "wn", "wb", "wq", "wk", "wb", "wn", "wr"]]
     
     turn = "w"
     halfmoves = 0
@@ -199,6 +195,34 @@ def main():
         for i in pieceList:
             canvas.blit(i.image, (i.rect.x, i.rect.y))
         pygame.display.update()
+
+
+def MateOrDraw(board, turn, prW, prB, hm):
+    if hm>=50: return "d"
+    wcanMate = False
+    for i in ["wr", "wp", "wq"]:
+        if i in prW:
+            wcanMate = True
+            break
+    bishopCount = 0
+    knightCount = 0
+    for i in prW:
+        if "b" in i: bishopCount+=1
+        if "n" in i: knightCount+=1
+    if bishopCount>=2 or knightCount>=3: wcanMate = True
+    bcanMate = False
+    for i in ["br", "bp", "bq"]:
+        if i in prB:
+            bcanMate = True
+            break
+    bishopCount = 0
+    knightCount = 0
+    for i in prB:
+        if "b" in i: bishopCount+=1
+        if "n" in i: knightCount+=1
+    if bishopCount>=2 or knightCount>=3: bcanMate = True
+    if not bcanMate and not wcanMate: return "d"
+
 
 
 # Thanks ChatGPT (shhh)
@@ -408,8 +432,6 @@ class Tile(pygame.sprite.Sprite):
         super().__init__()
   
         self.image = pygame.Surface([width, height])
-        self.image.fill(SURFACE_COLOR)
-        self.image.set_colorkey(COLOR)
 
         self.width = width
         self.height = height
