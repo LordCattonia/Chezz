@@ -34,7 +34,6 @@ def main():
     piecesRemainingW = ["wp", "wp", "wp", "wp", "wp", "wp", "wp", "wp", "wr", "wn", "wb", "wq", "wk", "wb", "wn", "wr"]
     piecesRemainingB = ["br", "bn", "bb", "bq", "bk", "bb", "bn", "br", "bp", "bp", "bp", "bp", "bp", "bp", "bp", "bp"]
 
-
     pieceMoves = {
         "k": king_move,
         "p": pawn_move,
@@ -147,17 +146,73 @@ def main():
                              board[y][x] = "bq"
                         else: board[y][x] = i.pieceSelected
                         if turn == "w":
+                            for i in pieceList:
+                                if i.colour == "b":
+                                    for j in pieceMoves[i.piece](board, i.rect.y/100, i.rect.x/100):
+                                        if is_check(board, turn, pieceMoves, j, i.piece, (a,b)):
+                                            break
+                                    else: continue
+                                    break
+                                else: 
+                                    if is_check(board, turn, pieceMoves, (i.rect.y/100, i.rect.x/100), i.piece, (i.rect.y/100, i.rect.x/100)):
+                                        return "Draw by stalemate"
+                                    return "White wins by checkmate"
                             turn = "b"
                             for j in range(len(board)):
                                 for k in range(len(board[j])):
                                     if "be" in board[j][k]:
                                         board[j][k] = " "
                         else: 
+                            for i in pieceList:
+                                if i.colour == "w":
+                                    for j in pieceMoves[i.piece](board, i.rect.y/100, i.rect.x/100):
+                                        if is_check(board, turn, pieceMoves, k, board[b][a], (a,b)):
+                                            break
+                                    else: continue
+                                    break
+                                else: 
+                                    if is_check(board, turn, pieceMoves, (i.rect.y/100, i.rect.x/100), i.piece, (i.rect.y/100, i.rect.x/100)):
+                                        return "Draw by stalemate"
+                                    return "Black wins by checkmate"
                             turn = "w"
                             for j in range(len(board)):
                                 for k in range(len(board[j])):
                                     if "we" in board[j][k]:
                                         board[j][k] = " "
+                        if halfmoves>=50: return "draw by 50 move rule"
+                        wcanMate = False
+                        for i in ["wr", "wp", "wq"]:
+                            if i in piecesRemainingW:
+                                wcanMate = True
+                                break
+                        bishopCount = 0
+                        knightCount = 0
+                        for i in piecesRemainingW:
+                            if "b" in i: bishopCount+=1
+                            if "n" in i: knightCount+=1
+                        if bishopCount>=2 or knightCount>=3: wcanMate = True
+                        bcanMate = False
+                        for i in ["br", "bp", "bq"]:
+                            if i in piecesRemainingB:
+                                bcanMate = True
+                                break
+                        bishopCount = 0
+                        knightCount = 0
+                        for i in piecesRemainingB:
+                            if "b" in i: bishopCount+=1
+                            if "n" in i: knightCount+=1
+                        if bishopCount>=2 or knightCount>=3: bcanMate = True
+                        if not bcanMate and not wcanMate: return "draw by insufficient material"
+                        # Lmao im not making draw by repetition im sorry
+                        # if I ever add fgn i will but b4 that f you lol
+                        
+
+    for i in range(len(board)):
+        for j in range(len(board[i])):
+            if board[i][j][0] == "b" and not "e" in i:
+                for k in pieceMoves[board[i][j][1]](board, i, j):
+                    if is_check(board, turn, pieceMoves, k, board[i][j], (i,j)):
+                        break
                 for i in tileList:
                     if i.cb:
                             pygame.draw.rect(i.image,
@@ -195,35 +250,6 @@ def main():
         for i in pieceList:
             canvas.blit(i.image, (i.rect.x, i.rect.y))
         pygame.display.update()
-
-
-def MateOrDraw(board, turn, prW, prB, hm):
-    if hm>=50: return "d"
-    wcanMate = False
-    for i in ["wr", "wp", "wq"]:
-        if i in prW:
-            wcanMate = True
-            break
-    bishopCount = 0
-    knightCount = 0
-    for i in prW:
-        if "b" in i: bishopCount+=1
-        if "n" in i: knightCount+=1
-    if bishopCount>=2 or knightCount>=3: wcanMate = True
-    bcanMate = False
-    for i in ["br", "bp", "bq"]:
-        if i in prB:
-            bcanMate = True
-            break
-    bishopCount = 0
-    knightCount = 0
-    for i in prB:
-        if "b" in i: bishopCount+=1
-        if "n" in i: knightCount+=1
-    if bishopCount>=2 or knightCount>=3: bcanMate = True
-    if not bcanMate and not wcanMate: return "d"
-
-
 
 # Thanks ChatGPT (shhh)
 def king_move(lst, row, col):
