@@ -82,7 +82,6 @@ def main():
 
     running = True
     while running:
-        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -148,13 +147,13 @@ def main():
                         if turn == "w":
                             for i in pieceList:
                                 if i.colour == "b":
-                                    for j in pieceMoves[i.piece](board, i.rect.y/100, i.rect.x/100):
+                                    for j in pieceMoves[i.piece](board, int(i.rect.y/100), int(i.rect.x/100)):
                                         if is_check(board, turn, pieceMoves, j, i.piece, (a,b)):
                                             break
                                     else: continue
                                     break
                                 else: 
-                                    if is_check(board, turn, pieceMoves, (i.rect.y/100, i.rect.x/100), i.piece, (i.rect.y/100, i.rect.x/100)):
+                                    if is_check(board, turn, pieceMoves, (int(i.rect.y/100), int(i.rect.x/100)), i.piece, (int(i.rect.y/100), int(i.rect.x/100))):
                                         return "Draw by stalemate"
                                     return "White wins by checkmate"
                             turn = "b"
@@ -165,13 +164,12 @@ def main():
                         else: 
                             for i in pieceList:
                                 if i.colour == "w":
-                                    for j in pieceMoves[i.piece](board, i.rect.y/100, i.rect.x/100):
+                                    for j in pieceMoves[i.piece](board, int(i.rect.y/100), int(i.rect.x/100)):
                                         if is_check(board, turn, pieceMoves, k, board[b][a], (a,b)):
                                             break
-                                    else: continue
-                                    break
+                                    else: break
                                 else: 
-                                    if is_check(board, turn, pieceMoves, (i.rect.y/100, i.rect.x/100), i.piece, (i.rect.y/100, i.rect.x/100)):
+                                    if is_check(board, turn, pieceMoves, (int(i.rect.y/100), int(i.rect.x/100)), i.piece, (int(i.rect.y/100), int(i.rect.x/100))):
                                         return "Draw by stalemate"
                                     return "Black wins by checkmate"
                             turn = "w"
@@ -205,14 +203,8 @@ def main():
                         if not bcanMate and not wcanMate: return "draw by insufficient material"
                         # Lmao im not making draw by repetition im sorry
                         # if I ever add fgn i will but b4 that f you lol
-                        
 
-    for i in range(len(board)):
-        for j in range(len(board[i])):
-            if board[i][j][0] == "b" and not "e" in i:
-                for k in pieceMoves[board[i][j][1]](board, i, j):
-                    if is_check(board, turn, pieceMoves, k, board[i][j], (i,j)):
-                        break
+        
                 for i in tileList:
                     if i.cb:
                             pygame.draw.rect(i.image,
@@ -227,25 +219,24 @@ def main():
                     i.oldLoc = " "
                     
         
-        pieceList = []
-        for i in range(8):
-            for j in range(8):
-                if board[j][i] != " " and not "e" in board[j][i]:
-                    pieceList.append(Piece(i, j, board[j][i][0], board[j][i][1]))            
-        for i in tileList.sprites():
-            if i.selected:
-                x, y = i.rect.x, i.rect.y
-                [a, b] = find_element(tileList.sprites(), i, refList)
-                for j in pieceList:
-                    if j.rect.x == x and j.rect.y == y and board[b][a][0] == turn:
-                        for k in pieceMoves[j.piece](board, b, a):
-                            if is_check(board, turn, pieceMoves, k, board[b][a], (a,b)):
-                                MoveTo = tileList.sprites()[refList[k[1]][k[0]]]
-                                pygame.draw.circle(MoveTo.image, (255, 255, 255), (50,50), 20)
-                                MoveTo.moveable = True
-                                MoveTo.pieceSelected = board[b][a]
-                                MoveTo.oldLoc = [b, a]
-
+            pieceList = []
+            for i in range(8):
+                for j in range(8):
+                    if board[j][i] != " " and not "e" in board[j][i]:
+                        pieceList.append(Piece(i, j, board[j][i][0], board[j][i][1]))            
+            for i in tileList.sprites():
+                if i.selected:
+                    x, y = i.rect.x, i.rect.y
+                    [a, b] = find_element(tileList.sprites(), i, refList)
+                    for j in pieceList:
+                        if j.rect.x == x and j.rect.y == y and board[b][a][0] == turn:
+                            for k in pieceMoves[j.piece](board, b, a):
+                                if is_check(board, turn, pieceMoves, k, board[b][a], (a,b)):
+                                    MoveTo = tileList.sprites()[refList[k[1]][k[0]]]
+                                    pygame.draw.circle(MoveTo.image, (255, 255, 255), (50,50), 20)
+                                    MoveTo.moveable = True
+                                    MoveTo.pieceSelected = board[b][a]
+                                    MoveTo.oldLoc = [b, a]
         tileList.draw(canvas)
         for i in pieceList:
             canvas.blit(i.image, (i.rect.x, i.rect.y))
@@ -479,4 +470,4 @@ class Tile(pygame.sprite.Sprite):
         self.rect.y = locy
 
 if __name__ == "__main__":
-    main()
+    print(main())
